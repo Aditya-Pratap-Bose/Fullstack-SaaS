@@ -1,6 +1,8 @@
-Django>=5.0,<5.1
+Django >= 5.0, < 5.1
 gunicorn
 python-decouple == 3.8
 psycopg[binary]
 dj-database-url
 requests
+whitenoise
+django-allauth[socialaccount] == 0.63.3

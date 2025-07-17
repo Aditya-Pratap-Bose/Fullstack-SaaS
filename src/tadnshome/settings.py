@@ -16,6 +16,32 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Email config
+EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = config("EMAIL_PORT", cast=str, default='587')  # Recommended
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str,
+                         default=True)  # Use EMAIL_PORT 587 for TLS
+# Use MAIL_PORT 456 for SSL
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str, default=False)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=None)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool, default=None)
+
+
+# 500 Errors
+# ADMINS = [('Justin', 'apbose999@gmail.com')]
+# MANAGERS=ADMINS
+ADMINS_USER_NAME = config("ADMIN_USER_NAME", default="Admin user")
+ADMIN_USER_EMAIL = config("ADMIN_USER_EMAIL", default=None)
+
+MANAGERS = []
+ADMINS = []
+if all([ADMINS_USER_NAME, ADMIN_USER_EMAIL]):
+    # 500 errors are emailed to these users
+    ADMINS += [
+        (f'{ADMINS_USER_NAME}', f'{ADMIN_USER_EMAIL}')
+    ]
+    MANAGERS = ADMINS
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -50,15 +76,21 @@ INSTALLED_APPS = [
     # my apps
     'commando',
     'visits',
+    # third-party apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -94,7 +126,7 @@ DATABASES = {
 }
 
 CONN_MAX_AGE = config("CONN_MAX_AGE", cast=int, default=30)
-DATABASE_URL = config("DATABASE_URL", default=None, default=None)
+DATABASE_URL = config("DATABASE_URL", default=None)
 
 if DATABASE_URL is not None:
     import dj_database_url
@@ -124,6 +156,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Django Allauth Config
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+AUTHENTICATION_BACKENDS = [
+    # ...
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+    # ...
+]
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -151,10 +200,18 @@ STATICFILES_DIRS = [
 ]
 
 # source(s) for python manage.py collectstatic
-# local cdn
-STATIC_ROOT = BASE_DIR / "local-cdn"
 # if not DEBUG:
 #     STATIC_ROOT = BASE_DIR / "prod-cdn"
+# local cdn
+STATIC_ROOT = BASE_DIR / "local-cdn"
+# < django 4.2
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
