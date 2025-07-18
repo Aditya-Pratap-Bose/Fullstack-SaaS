@@ -6,3 +6,6 @@ dj-database-url
 requests
 whitenoise
 django-allauth[socialaccount] == 0.63.3
+django-allauth-ui
+django-widget-tweaks
+slippers

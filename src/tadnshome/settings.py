@@ -77,9 +77,12 @@ INSTALLED_APPS = [
     'commando',
     'visits',
     # third-party apps
+    'slippers',
+    'allauth_ui',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -99,8 +102,8 @@ ROOT_URLCONF = 'tadnshome.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/'templates'],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR/ "templates"],
+        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -159,6 +162,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Django Allauth Config
 LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[CFE]"
 ACCOUNT_EMAIL_REQUIRED = True
 AUTHENTICATION_BACKENDS = [
     # ...
